@@ -1,163 +1,376 @@
-
-
 <template>
     <div class="flex flex-col gap-16">
-        <XHeader title="Usuarios">
+        <XHeader title="Gestión de usuarios">
             <template #description>
-                <p>Crea usuarios y asigna los roles correspondientes, procura garantizar que cada usuario cuente con los permisos adecuados para sus funciones.</p>
+                <p class="text-gray-800">Crea usuarios y asigna los roles correspondientes, procura garantizar que cada usuario cuente con los permisos adecuados para sus funciones.</p>
             </template>
         </XHeader>
-        
-        <div v-if="isLoading" class="text-center py-8">
-            <ProgressSpinner />
-            <p class="mt-4">Cargando usuarios...</p>
-        </div>
-        
-        <div v-else-if="hasError" class="text-center py-8 text-red-500">
-            <p>Error: {{ error }}</p>
-            <Button @click="fetchUsers" label="Reintentar" class="mt-4" />
-        </div>
-
-        <div v-else class="flex flex-col gap-16">
-            <div class="flex justify-between gap-4">
-                <div class="self-center">
-                    <XIconField>
-                        <InputText 
-                            v-model="searchTerm"
-                            placeholder="Buscar" 
-                            class="!w-[250px]"
-                            @keyup.enter="handleSearch"/>
-                        <XInputIcon icon="search" @click="handleSearch" /> <!-- AÑADIR CLICK -->
-                    </XIconField>
+        <div  class="flex flex-col gap-16">
+            <div v-if="!hasUsers && !loading" class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="mb-6">
+                    <div class="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                        <i class="pi pi-users text-4xl text-gray-400"></i>
+                    </div>
                 </div>
-                <div class="self-center">
-                    <XButton 
-                        label="Nuevo usuario" 
-                        icon="think-plus" 
-                        @click="openNewUser" 
-                        class="!w-[150px]"/>
-                </div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Aún no existen usuarios</h3>
+                <p class="text-gray-500 mb-6">Comienza creando el primer usuario del sistema.</p>
+                <XButton 
+                    label="Nuevo usuario" 
+                    icon="think-plus" 
+                    @click="openCreateModal" 
+                    class="!w-[150px]"/>
             </div>
 
-            <!-- DataTable -->
+            <div v-if="hasUsers" class="flex flex-col gap-8">
+                <div class="flex flex-row justify-between">
+                    <div class="self-center">
+                        <XIconField>
+                            <InputText 
+                                v-model="filters['global'].value"
+                                placeholder="Buscar..." 
+                                class="!w-[250px]"
+                            />
+                            <XInputIcon icon="search" @click="handleSearch" />
+                        </XIconField>
+                    </div>
+                    <div class="self-center">
+                        <XButton 
+                            label="Nuevo usuario" 
+                            icon="think-plus" 
+                            @click="openCreateModal" 
+                            class="!w-[150px]"/>
+                    </div>
+                </div>
+                <!-- DataTable -->
+                <div class="flex flex-col gap-12">
             <DataTable 
-                :value="allUsers" 
-                paginator
-                :rows="10"
+                v-if="hasUsers"
+                :value="paginatedUsers" 
+                v-model:filters="filters"
                 :rowsPerPageOptions="[10, 25, 50, 100]"
-                :loading="isLoading"
+                :loading="loading"
+                dataKey="id"
+                filterDisplay="row"
+                :globalFilterFields="['email', 'fullname', 'roleDescription', 'code', 'statusDescription']"
             >
-                <Column field="email" header="Correo Electrónico" sortable class="w-[225px]">
+                <template #empty> <span class="flex justify-center">No se encontraron usuarios.</span> </template>
+                <template #loading> <span class="flex justify-center">Cargando datos de usuarios. Por favor espere.</span> </template>
+                
+                <Column field="codigo" header="Código" sortable class="w-[158px]" :showFilterMenu="false">
                     <template #body="{ data }">
-                        {{ data.email }}
+                        {{ data.code }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <IconField>
+                            <InputText 
+                                v-model="filterModel.value" 
+                                type="text" 
+                                @input="filterCallback()" 
+                                class="!w-56" 
+                                placeholder="Buscar"
+                            />
+                            <XInputIcon icon="search" />
+                        </IconField>
+                        
                     </template>
                 </Column>
-                
-                <Column field="fullname" header="Nombre" sortable class="w-[280px]">
+
+                <Column field="fullname" header="Nombre" sortable class="w-[280px]" :showFilterMenu="false">
                     <template #body="{ data }">
                         {{ data.fullname }}
                     </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <IconField>
+                            <InputText 
+                                v-model="filterModel.value" 
+                                type="text" 
+                                @input="filterCallback()" 
+                                class="!w-[234px]" 
+                                placeholder="Buscar"
+                            />
+                            <XInputIcon icon="search" />
+                        </IconField>
+                    </template>
                 </Column>
-                
-                <Column field="rol" header="Rol" sortable class="w-[158px]">
+
+                <Column field="email" header="Correo Electrónico" sortable class="w-[225px]" :showFilterMenu="false">
+                    <template #body="{ data }">
+                        {{ data.email }}
+                    </template>
+                    <template #filter="{ filterModel , filterCallback}">
+                        <IconField>
+                            <InputText 
+                                v-model="filterModel.value" 
+                                type="text" 
+                                @input="filterCallback()" 
+                                class="!w-88" 
+                                placeholder="Buscar"
+                            />
+                            <XInputIcon icon="search" />
+                        </IconField>
+                    </template>
+                </Column>
+
+                <Column field="rol" header="Rol" sortable class="w-[158px]" :showFilterMenu="false">
                     <template #body="{ data }">
                         <Tag 
-                            :value="data.rol" 
+                            :value="data.roleDescription" 
                             severity="neutral"
-                            class="text-xs"
                         />
                     </template>
-                </Column>
-                <Column field="codigo" header="Código" sortable class="w-[158px]">
-                    <template #body="{ data }">
-                        {{ data.codigo }}
+                    <template #filter="{ filterModel, filterCallback }">
+                        <XSelect 
+                                name="filterRole"
+                                v-model="filterModel.value" 
+                                @change="filterCallback()" 
+                                :options="roles" 
+                                optionLabel="label" 
+                                optionValue="value"
+                                placeholder="Seleccionar" 
+                                class="!w-56" 
+                                :showClear="true"
+                            />
                     </template>
                 </Column>
-                
-                <Column field="isActive" header="Estado" sortable class="w-[158px]">
+
+                <Column field="isActive" header="Estado" sortable class="w-[158px]" :showFilterMenu="false">
                     <template #body="{ data }">
                         <Tag 
                             :value="data.statusDescription" 
                             :severity="data.isActive ? 'success' : 'danger'"
-                            class="text-xs"
                         />
                     </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                            <XSelect 
+                                name="filterIsActive"
+                                v-model="filterModel.value" 
+                                @change="filterCallback()" 
+                                :options="statusOptions" 
+                                optionLabel="label" 
+                                optionValue="value"
+                                placeholder="Seleccionar" 
+                                class="!w-56" 
+                                :showClear="true"
+                            />
+                        </template>
                 </Column>
-                 
-                <Column header="Acciones"  class="w-[141px] flex gap-4">
+                <Column header="Acciones"  class="w-[133px]">
                     <template #body="{ data }">
-                        <XButton variant="outlined" icon="edit-pencil" @click="editUser(data)" size="small"/>
-                        <XButton label="Editar" size="small"/>
+                        <div class="flex gap-2">
+                            <XButton 
+                                variant="outlined" 
+                                icon="lock"  
+                                size="small" 
+                                @click="openRevertPassModal(data)" 
+                                v-tooltip="{ value: 'Reseteo de contraseña', hideDelay: 300 }"
+                            />
+                            <XButton 
+                                label="Editar" 
+                                size="small" 
+                                @click="openEditModal(data)"
+                            />
+                        </div>
                     </template>
                 </Column>
-            </DataTable>
+                    </DataTable>
+
+                    <Paginator 
+                        v-if="hasUsers"
+                        :rows="rows"
+                        :totalRecords="users.length"
+                        :first="first"
+                        :rowsPerPageOptions="[10, 25, 50, 100]"
+                        @page="onPage"
+                    />
+                </div>
+            </div>
         </div>
 
         <UserModal 
-            v-model="modalUser" 
-            :userData="selectedUser"
-            @save="handleSave"
+            v-model="modalStateUser.modalUser" 
+            :mode="modalStateUser.mode"
+            :userData="modalStateUser.userData"
+            @save="handleUserSaved"
+        />
+
+        <UserModalReset
+            v-model="modalStateRevert.showModal"
+            :userData="modalStateRevert.userData"
+            @save="handlePasswordReset"
         />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useUsers } from '~/componsables/useUsers';
+import { FilterMatchMode } from '@primevue/core';
+import type { ModalMode, ServiceError, UserListItem, UserModalData } from '~/features/users/types';
 import UserModal from '~/features/users/UserModal.vue';
+import UserModalReset from '~/features/users/UserModalReset.vue';
+import { userService } from '~/services/userService';
 
-const {
-    allUsers, 
-    isLoading, 
-    hasError, 
-    error, 
-    searchTerm,
-    fetchUsers 
-} = useUsers();
+// Composables 
+const toast = useToast()
 
-const modalUser = ref(false);
-const selectedUser = ref<any>(null);
+//State
+const users = ref<UserListItem[]>([]);
+const loading = ref(false)
+const searchTerm = ref('')
+const first = ref(0)
+const rows = ref(10)
 
-// AÑADIR FUNCIÓN HANDLE SEARCH QUE FALTABA
-const handleSearch = () => {
-    fetchUsers({ search: searchTerm.value });
-};
-
-const openNewUser = () => {
-    selectedUser.value = {
-        code: '',           
-        name: '',
-        email: '',          
-        rol: '',
-        estado: 'Activo',
-        codigo: '',         
-        telefono: '',
-        situacion: true
-    };
-    modalUser.value = true;
-};
-
-const editUser = (row: any) => {
-    selectedUser.value = {
-        code: row.codigo,                 
-        name: row.fullname, // ← Usar fullname en lugar de name
-        email: row.email,
-        rol: row.rol,
-        telefono: row.telefono || '',
-        situacion: row.isActive // ← Usar isActive directamente
-    };
-    modalUser.value = true;
-};
-
-const handleSave = (data: any) => {
-    console.log('Guardar usuario', data);
-    modalUser.value = false;
-    // Recargar usuarios después de guardar
-    fetchUsers();
-};
-
-// AÑADIR onMounted PARA CARGAR USUARIOS AL INICIAR
-onMounted(() => {
-    fetchUsers();
+// Filters
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    fullname: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    rol: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    codigo: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    isActive: { value: null, matchMode: FilterMatchMode.EQUALS }
 });
+
+const roles = ref([
+    { label: 'Administrador', value: 'Administrador' },
+]);
+
+const statusOptions = ref([
+    { label: 'Activo', value: true },
+    { label: 'Inactivo', value: false }
+]);
+
+//Paginator
+const paginatedUsers = computed(() => {
+    return users.value.slice(first.value, first.value + rows.value)
+})
+
+const onPage = (event: any) => {
+    first.value = event.first
+    rows.value = event.rows
+}
+
+// State para el modal principal
+const modalStateUser = ref<{
+    modalUser: boolean,
+    mode: ModalMode,
+    userData?: UserModalData,
+}>({
+    modalUser: false,
+    mode: 'create',
+    userData: undefined
+})
+
+// State para el modal de reseteo de contraseña
+const modalStateRevert = ref<{
+    showModal: boolean,
+    userData?: UserModalData,
+}>({
+    showModal: false,
+    userData: undefined
+})
+
+const modalRevertPassUser = ref(false)
+
+// Computed para verificar si hay usuarios
+const hasUsers = computed(() => {
+    return users.value && users.value.length > 0
+})
+
+// Methods
+const loadUsers = async (): Promise<void> => {
+    loading.value = true
+    try {
+        const response = await userService.getUsers()
+        users.value = response.users
+    } catch (error) {
+        console.error('Error loading users:', error)
+        const serviceError = error as ServiceError
+
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: serviceError.message || 'Error al cargar los usuarios',
+            life: 5000
+        })
+    } finally {
+        loading.value = false
+    }
+}
+
+const handleSearch = async (): Promise<void> => {
+    // Si hay término de búsqueda, hacer búsqueda en servidor
+    if (searchTerm.value.trim()) {
+        loading.value = true
+        
+        try {
+            const response = await userService.getUsers({ 
+                search: searchTerm.value.trim() 
+            })
+            users.value = response.users
+        } catch (error) {
+            console.error('Error searching users:', error)
+            const serviceError = error as ServiceError
+
+            toast.add({
+                severity: 'error',
+                summary: 'Error de búsqueda',
+                detail: serviceError.message || 'Error al buscar usuarios',
+                life: 5000
+            })
+        } finally {
+            loading.value = false
+        }
+    } else {
+        await loadUsers()
+    }
+}
+
+const openCreateModal = (): void => {
+    modalStateUser.value = {
+        modalUser: true,
+        mode: 'create',
+        userData: undefined
+    }
+}
+
+const openEditModal = (userData: UserModalData): void => {
+    modalStateUser.value = {
+        modalUser: true,
+        mode: 'edit',
+        userData:{
+            code: userData.code,
+            fullname: userData.fullname,
+            email: userData.email,
+            alias: userData.alias,
+            roleCode: userData.roleCode,
+            isActive: userData  .isActive
+        }
+    }
+}
+
+const handleUserSaved = (): void => {
+    loadUsers()
+}
+
+const openRevertPassModal = (userData: UserModalData): void => {
+    console.log('Abriendo modal de prueba')
+    modalStateRevert.value = {
+        showModal: true,
+        userData: {
+            code: userData.code,
+            fullname: userData.fullname,
+            email: userData.email,
+            alias: userData.alias,
+            roleCode: userData.roleCode,
+            isActive: userData.isActive
+        }
+    }
+}
+
+const handlePasswordReset = (userData?: UserModalData): void => {
+    console.log('Contraseña reseteada para:oo', userData)
+}
+
+// Lifecycle
+onMounted(() => {
+    loadUsers()
+})
 </script>
