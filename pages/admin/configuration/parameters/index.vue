@@ -2,7 +2,7 @@
     <div class="flex flex-col gap-20">
         <XHeader title="Parámetros" :breadcrumb-items="itemsBreadParameters" :show-breadcrumb="true">
             <template #description>
-                <p class="text-gray-800">Consultar todos los parámetros configurados en el sistema y realizar las modificaciones necesarias. Además te presenta el historial de cambios para asegurar un control adecuado.</p>
+                <p class="text-gray-800">Consulta r todos los parámetros configurados en el sistema y realizar las modificaciones necesarias. Además te presenta el historial de cambios para asegurar un control adecuado.</p>
             </template>
         </XHeader>
 
