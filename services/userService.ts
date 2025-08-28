@@ -1,5 +1,5 @@
 import { API_CONFIG } from "~/config/api";
-import type { UserDetailResponse, UserRequest, UserResponse, UserSaveResponse, UsersListResponse } from "~/features/users/types";
+import type { UserDetailResponse, UserRequest, UserSaveResponse, UsersListResponse } from "~/features/users/types";
 
 class UserService {
     public baseURL = API_CONFIG.BASE_URL;
@@ -7,8 +7,6 @@ class UserService {
     private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
         try {
             const url = `${this.baseURL}/${endpoint}`;
-
-            console.log('URL de solicitud:', url);
 
             const response = await fetch(url, {
                 ...options,
@@ -18,12 +16,13 @@ class UserService {
                 }
             });
 
+            console.log('Esta es un URL', url);
+
             if (!response.ok) {
                 throw new Error(`Error: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
-            console.log(data);
             return data;
         } catch (error) {
             console.error('Error en la solicitud:', error);
@@ -38,6 +37,7 @@ class UserService {
             const params = new URLSearchParams({ search: filters.search })
             endpoint += `?${params.toString()}`
         }
+        console.log('Esta es un URdddL', this.request<UsersListResponse[]>(endpoint));
         return this.request<UsersListResponse[]>(endpoint);
     }
 
@@ -49,15 +49,13 @@ class UserService {
     }
 
     async createUser(userData: UserRequest): Promise<UserSaveResponse> {
-        console.log('Inserting user with data:', userData);
-        return this.request<UserResponse>('users', {
+        return this.request<any>('users', {
             method: 'POST',
             body: JSON.stringify(userData)
         });
     }
 
     async updateUser(userData: UserRequest): Promise<UserSaveResponse> {
-        console.log('Updating user with data:', userData);
         return this.request<UserSaveResponse>('users', {
             method: 'PUT',
             body: JSON.stringify(userData)

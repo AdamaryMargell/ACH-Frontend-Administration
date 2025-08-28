@@ -17,7 +17,11 @@ const menuConfigACH: MenuBarAdminConfig = {
                 },
                 {
                     label: 'Participantes',
-                    to: '/admin/configuration/participantes',
+                    to: '/admin/configuration/participants',
+                },
+                {
+                    label: 'Parámetros',
+                    to: '/admin/configuration/parameters',
                 },
             ]
         },

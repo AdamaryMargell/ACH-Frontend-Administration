@@ -43,135 +43,135 @@
                 </div>
                 <!-- DataTable -->
                 <div class="flex flex-col gap-12">
-            <DataTable 
-                v-if="hasUsers"
-                :value="paginatedUsers" 
-                v-model:filters="filters"
-                :rowsPerPageOptions="[10, 25, 50, 100]"
-                :loading="loading"
-                dataKey="id"
-                filterDisplay="row"
-                :globalFilterFields="['email', 'fullname', 'roleDescription', 'code', 'statusDescription']"
-            >
-                <template #empty> <span class="flex justify-center">No se encontraron usuarios.</span> </template>
-                <template #loading> <span class="flex justify-center">Cargando datos de usuarios. Por favor espere.</span> </template>
-                
-                <Column field="codigo" header="Código" sortable class="w-[158px]" :showFilterMenu="false">
-                    <template #body="{ data }">
-                        {{ data.code }}
-                    </template>
-                    <template #filter="{ filterModel, filterCallback }">
-                        <IconField>
-                            <InputText 
-                                v-model="filterModel.value" 
-                                type="text" 
-                                @input="filterCallback()" 
-                                class="!w-56" 
-                                placeholder="Buscar"
-                            />
-                            <XInputIcon icon="search" />
-                        </IconField>
-                        
-                    </template>
-                </Column>
+                    <DataTable 
+                        v-if="hasUsers"
+                        :value="paginatedUsers" 
+                        v-model:filters="filters"
+                        :rowsPerPageOptions="[10, 25, 50, 100]"
+                        :loading="loading"
+                        dataKey="id"
+                        filterDisplay="row"
+                        :globalFilterFields="['email', 'fullname', 'roleDescription', 'code', 'statusDescription']"
+                    >
+                        <template #empty> <span class="flex justify-center">No se encontraron usuarios.</span> </template>
+                        <template #loading> <span class="flex justify-center">Cargando datos de usuarios. Por favor espere.</span> </template>
 
-                <Column field="fullname" header="Nombre" sortable class="w-[280px]" :showFilterMenu="false">
-                    <template #body="{ data }">
-                        {{ data.fullname }}
-                    </template>
-                    <template #filter="{ filterModel, filterCallback }">
-                        <IconField>
-                            <InputText 
-                                v-model="filterModel.value" 
-                                type="text" 
-                                @input="filterCallback()" 
-                                class="!w-[234px]" 
-                                placeholder="Buscar"
-                            />
-                            <XInputIcon icon="search" />
-                        </IconField>
-                    </template>
-                </Column>
+                        <Column field="codigo" header="Código" sortable class="w-[158px]" :showFilterMenu="false">
+                            <template #body="{ data }">
+                                {{ data.code }}
+                            </template>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <IconField>
+                                    <InputText 
+                                        v-model="filterModel.value" 
+                                        type="text" 
+                                        @input="filterCallback()" 
+                                        class="!w-56" 
+                                        placeholder="Buscar"
+                                    />
+                                    <XInputIcon icon="search" />
+                                </IconField>
 
-                <Column field="email" header="Correo Electrónico" sortable class="w-[225px]" :showFilterMenu="false">
-                    <template #body="{ data }">
-                        {{ data.email }}
-                    </template>
-                    <template #filter="{ filterModel , filterCallback}">
-                        <IconField>
-                            <InputText 
-                                v-model="filterModel.value" 
-                                type="text" 
-                                @input="filterCallback()" 
-                                class="!w-88" 
-                                placeholder="Buscar"
-                            />
-                            <XInputIcon icon="search" />
-                        </IconField>
-                    </template>
-                </Column>
-
-                <Column field="rol" header="Rol" sortable class="w-[158px]" :showFilterMenu="false">
-                    <template #body="{ data }">
-                        <Tag 
-                            :value="data.roleDescription" 
-                            severity="neutral"
-                        />
-                    </template>
-                    <template #filter="{ filterModel, filterCallback }">
-                        <XSelect 
-                                name="filterRole"
-                                v-model="filterModel.value" 
-                                @change="filterCallback()" 
-                                :options="roles" 
-                                optionLabel="label" 
-                                optionValue="value"
-                                placeholder="Seleccionar" 
-                                class="!w-56" 
-                                :showClear="true"
-                            />
-                    </template>
-                </Column>
-
-                <Column field="isActive" header="Estado" sortable class="w-[158px]" :showFilterMenu="false">
-                    <template #body="{ data }">
-                        <Tag 
-                            :value="data.statusDescription" 
-                            :severity="data.isActive ? 'success' : 'danger'"
-                        />
-                    </template>
-                    <template #filter="{ filterModel, filterCallback }">
-                            <XSelect 
-                                name="filterIsActive"
-                                v-model="filterModel.value" 
-                                @change="filterCallback()" 
-                                :options="statusOptions" 
-                                optionLabel="label" 
-                                optionValue="value"
-                                placeholder="Seleccionar" 
-                                class="!w-56" 
-                                :showClear="true"
-                            />
-                        </template>
-                </Column>
-                <Column header="Acciones"  class="w-[133px]">
-                    <template #body="{ data }">
-                        <div class="flex gap-2">
-                            <XButton 
-                                variant="outlined" 
-                                icon="lock"  
-                                size="small" 
-                                @click="openRevertPassModal(data)" 
-                                v-tooltip="{ value: 'Reseteo de contraseña', hideDelay: 300 }"
-                            />
-                            <XButton 
-                                label="Editar" 
-                                size="small" 
-                                @click="openEditModal(data)"
-                            />
-                        </div>
-                    </template>
-                </Column>
+                            </template>
+                        </Column>
+                    
+                        <Column field="fullname" header="Nombre" sortable class="w-[280px]" :showFilterMenu="false">
+                            <template #body="{ data }">
+                                {{ data.fullname }}
+                            </template>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <IconField>
+                                    <InputText 
+                                        v-model="filterModel.value" 
+                                        type="text" 
+                                        @input="filterCallback()" 
+                                        class="!w-[234px]" 
+                                        placeholder="Buscar"
+                                    />
+                                    <XInputIcon icon="search" />
+                                </IconField>
+                            </template>
+                        </Column>
+                    
+                        <Column field="email" header="Correo Electrónico" sortable class="w-[225px]" :showFilterMenu="false">
+                            <template #body="{ data }">
+                                {{ data.email }}
+                            </template>
+                            <template #filter="{ filterModel , filterCallback}">
+                                <IconField>
+                                    <InputText 
+                                        v-model="filterModel.value" 
+                                        type="text" 
+                                        @input="filterCallback()" 
+                                        class="!w-88" 
+                                        placeholder="Buscar"
+                                    />
+                                    <XInputIcon icon="search" />
+                                </IconField>
+                            </template>
+                        </Column>
+                    
+                        <Column field="rol" header="Rol" sortable class="w-[158px]" :showFilterMenu="false">
+                            <template #body="{ data }">
+                                <Tag 
+                                    :value="data.roleDescription" 
+                                    severity="neutral"
+                                />
+                            </template>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <XSelect 
+                                        name="filterRole"
+                                        v-model="filterModel.value" 
+                                        @change="filterCallback()" 
+                                        :options="roles" 
+                                        optionLabel="label" 
+                                        optionValue="value"
+                                        placeholder="Seleccionar" 
+                                        class="!w-56" 
+                                        :showClear="true"
+                                    />
+                            </template>
+                        </Column>
+                    
+                        <Column field="isActive" header="Estado" sortable class="w-[158px]" :showFilterMenu="false">
+                            <template #body="{ data }">
+                                <Tag 
+                                    :value="data.statusDescription" 
+                                    :severity="data.isActive ? 'success' : 'danger'"
+                                />
+                            </template>
+                            <template #filter="{ filterModel, filterCallback }">
+                                    <XSelect 
+                                        name="filterIsActive"
+                                        v-model="filterModel.value" 
+                                        @change="filterCallback()" 
+                                        :options="statusOptions" 
+                                        optionLabel="label" 
+                                        optionValue="value"
+                                        placeholder="Seleccionar" 
+                                        class="!w-56" 
+                                        :showClear="true"
+                                    />
+                                </template>
+                        </Column>
+                        <Column header="Acciones"  class="w-[133px]">
+                            <template #body="{ data }">
+                                <div class="flex gap-2">
+                                    <XButton 
+                                        variant="outlined" 
+                                        icon="lock"  
+                                        size="small" 
+                                        @click="openRevertPassModal(data)" 
+                                        v-tooltip="{ value: 'Reseteo de contraseña', hideDelay: 300 }"
+                                    />
+                                    <XButton 
+                                        label="Editar" 
+                                        size="small" 
+                                        @click="openEditModal(data)"
+                                    />
+                                </div>
+                            </template>
+                        </Column>
                     </DataTable>
 
                     <Paginator 
@@ -267,7 +267,6 @@ const modalStateRevert = ref<{
     userData: undefined
 })
 
-const modalRevertPassUser = ref(false)
 
 // Computed para verificar si hay usuarios
 const hasUsers = computed(() => {
@@ -351,7 +350,6 @@ const handleUserSaved = (): void => {
 }
 
 const openRevertPassModal = (userData: UserModalData): void => {
-    console.log('Abriendo modal de prueba')
     modalStateRevert.value = {
         showModal: true,
         userData: {

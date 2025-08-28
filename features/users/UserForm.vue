@@ -93,6 +93,7 @@ const props = defineProps({
 const emits = defineEmits(['submit', 'cancel'])
 
 const requiredRule = (value) => {
+    console.log('Validating:', value);
     return value !== null && value !== undefined && value !== '' 
         ? true 
         : 'El campo es requerido'
@@ -111,7 +112,6 @@ const formData = ref({
 
 watch(() => props.userData, (newData) => {
     if (newData && Object.keys(newData).length > 0) {
-        console.log('Cargando datos del usuario en el formulario:', newData);
         formData.value = {
             code: newData.code || '',
             name: newData.name || '',

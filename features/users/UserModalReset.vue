@@ -37,11 +37,8 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { saveResetPassword } = useUserService()
-console.log('Props:', props)
-
 
 const handleSave = async (): Promise<void>  => {
-    console.log('Reseteando contraseña para:', props.userData);
     const success = await saveResetPassword(props.userData.code)
     if (success) {
         emit('save', props.userData)

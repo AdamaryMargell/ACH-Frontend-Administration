@@ -23,7 +23,7 @@
                 </template>
             </template>
         </XMenuBar>
-        <div class="flex flex-col pt-20">
+        <div class="flex flex-col pt-10">
             <NuxtPage />
         </div>
     </div>
