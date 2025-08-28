@@ -23,6 +23,10 @@ const menuConfigACH: MenuBarAdminConfig = {
                     label: 'Parámetros',
                     to: '/admin/configuration/parameters',
                 },
+                {
+                    label: 'Horarios',
+                    to: '/admin/configuration/horarios'
+                }
             ]
         },
         {
